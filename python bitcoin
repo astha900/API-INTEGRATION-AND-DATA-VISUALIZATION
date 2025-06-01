@@ -1,0 +1,35 @@
+import requests
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Step 1: Fetch Bitcoin price data from CoinGecko API
+url = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart"
+params = {
+    'vs_currency': 'usd',
+    'days': '30'
+}
+response = requests.get(url, params=params)
+response.raise_for_status()  # Raises an error if the request fails
+data = response.json()
+
+# Step 2: Process the data
+prices = data['prices']  # Each entry: [timestamp, price]
+dates = [pd.to_datetime(price[0], unit='ms') for price in prices]
+btc_prices = [price[1] for price in prices]
+
+# Create a DataFrame
+df = pd.DataFrame({'Date': dates, 'BTC_Price': btc_prices})
+
+# Step 3: Visualize the data
+plt.figure(figsize=(12, 6))
+plt.plot(df['Date'], df['BTC_Price'], marker='o', linestyle='-', color='green', label='BTC Price (USD)')
+plt.title('Bitcoin Price in Last 30 Days (USD)')
+plt.xlabel('Date')
+plt.ylabel('Price (USD)')
+plt.xticks(rotation=45)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+
+
